@@ -25,7 +25,6 @@ function preventFormSubmit() {
 function activateInput() {
   function insertName(newName) {
     globalNames.push(newName);
-    render();
   }
 
   function updateName(newName) {
@@ -33,6 +32,13 @@ function activateInput() {
   }
 
   function handleTyping(event) {
+    let hasText = !!event.target.value && event.target.value.trim() !== '';
+
+    if (!hasText) {
+      clearInput();
+      return;
+    }
+
     if (event.key === 'Enter') {
       if (isEditing) {
         updateName(event.target.value);
@@ -40,6 +46,7 @@ function activateInput() {
         insertName(event.target.value);
       }
 
+      render();
       isEditing = false;
       clearInput();
     }
