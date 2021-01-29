@@ -3,6 +3,8 @@ window.addEventListener('load', start);
 
 let globalNames = ['Um', 'Dois', 'Três', 'Quatro', 'Cinco'];
 let inputName = null;
+let isEditing = false;
+let currentIndex = null;
 
 function start() {
   inputName = document.querySelector('#inputName');
@@ -10,7 +12,6 @@ function start() {
   activateInput();
   render();
 }
-
 //Função para não recarregar a página ao enviar o form
 function preventFormSubmit() {
   function handleFormSubmit(event) {
@@ -27,9 +28,20 @@ function activateInput() {
     render();
   }
 
+  function updateName(newName) {
+    globalNames[currentIndex] = newName;
+  }
+
   function handleTyping(event) {
     if (event.key === 'Enter') {
-      insertName(event.target.value);
+      if (isEditing) {
+        updateName(event.target.value);
+      } else {
+        insertName(event.target.value);
+      }
+
+      isEditing = false;
+      clearInput();
     }
   }
 
@@ -43,13 +55,30 @@ function render() {
       globalNames.splice(index, 1);
       render();
     }
+
     let button = document.createElement('button');
+
     button.classList.add('deleteButton');
     button.textContent = 'x';
-
     button.addEventListener('click', deleteName);
 
     return button;
+  }
+
+  function createSpan(name, index) {
+    function editItem() {
+      inputName.value = name;
+      inputName.focus();
+      isEditing = true;
+      currentIndex = index;
+    }
+
+    let span = document.createElement('span');
+    span.classList.add('clickable');
+    span.textContent = name;
+    span.addEventListener('click', editItem);
+
+    return span;
   }
 
   let divNames = document.querySelector('#names');
@@ -58,12 +87,9 @@ function render() {
 
   for (let i = 0; i < globalNames.length; i++) {
     let currentName = globalNames[i];
-
     let li = document.createElement('li');
     let button = createDeleteButton(i);
-
-    let span = document.createElement('span');
-    span.textContent = currentName;
+    let span = createSpan(currentName, i);
 
     //é necessário inserir o texto dentro de um elemento.
     li.appendChild(button);
